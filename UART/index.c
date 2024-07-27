@@ -1,17 +1,17 @@
 /**
   ******************************************************************************
   * \file    uart_led.c
-  * \author  Александр Смирнов
+  * \author  Абдуллаев Тимур
   * \version 1.0.1
   * \date    22.04.2023
   * \brief   Программа на языке C для учебного стенда на базе
   *          STM32F072RBT6 в среде разработки Keil uVision 5.
   *          Подключение библиотек поддержки МК STM32F072RBT6 осуществляется
   *          средствами IDE Keil через менеджер пакетов Run-Time Environment (RTE).
-  *          Разработать программу, обеспечивающую управление цветом светодиода
-  *          через командный интерфейс.
-  *          При вводе команды "LED1" загорается светодиод D1,
-  *          команды "LED2" загорается светодиод D2, и так далее.
+  *          Разработать программу, демонстрирующую работу интерфейса UART
+  *          При вводе в терминал команды "START" в МК запускается секунднаый таймер,
+  *          При вводе команды "STOP" таймер останавливается и на терминал выводится 
+  *          количество прошедших с запуска секунд.
   *          Если введена неизвестная команда, то на терминал выводится слово
   *          "ERROR".
   *          Программа работает в режиме 0 учебного стенда (S1 = 0, S2 = 0).
@@ -184,49 +184,37 @@ char int_to_char (uint8_t s){
 	return (s+0x30);
 }
 
-int main(void)
-{
+int main(void) {
 
     timer_init();
     usart_init();
     char buf[20] = {0};
     int32_t pos = 0;
-    while (1)
-    {
-
-		char ch = usart_receive();
-        if (ch != '\r')
-        {
-            if (pos < 20)
-            {
+    while (1) {
+        char ch = usart_receive();
+        if (ch != '\r'){
+            if (pos < 20){
                 buf[pos] = ch;
                 pos++;
             }
         }
         else
         {
-            if (_strncmp(buf, "STOP", 4) == 0)
-            {	
-							finishNamber = data;
-							usart_transmit(int_to_char((finishNamber%10000)/1000));
-							usart_transmit(int_to_char((finishNamber%1000)/100));
-							usart_transmit(int_to_char((finishNamber%100)/10));
-							usart_transmit(int_to_char(finishNamber%10));
-							putstr(" CEK.\n");		
-            }
-						else if (_strncmp(buf, "START", 5) == 0)
-            {
-							putstr("START\n");
-							data=0;
-            }
-            else
-            {  
+            if (_strncmp(buf, "STOP", 4) == 0){	
+				finishNamber = data;
+				usart_transmit(int_to_char((finishNamber%10000)/1000));
+				usart_transmit(int_to_char((finishNamber%1000)/100));
+				usart_transmit(int_to_char((finishNamber%100)/10));
+				usart_transmit(int_to_char(finishNamber%10));
+				putstr(" CEK.\n");		
+            } else if (_strncmp(buf, "START", 5) == 0){
+				putstr("START\n");
+				data=0;
+            } else {  
                 putstr("ERROR\n");
             }
-
             pos = 0;
-            for(int i = 0; i < 20; i++)
-            {
+            for(int i = 0; i < 20; i++) {
                 buf[i] = '\0';
             }
         }
